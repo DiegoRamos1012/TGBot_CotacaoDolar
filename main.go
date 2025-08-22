@@ -8,7 +8,7 @@ import (
 	"os"            // Interação com funcionalidades do sistema / Interaction with system features
 	"strconv"       // Conversão de string / string conversion
 
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/joho/godotenv"
 )
 
@@ -64,24 +64,68 @@ func main() {
 			exchangeRateFloat, err := strconv.ParseFloat(exchangeRateDollarBRL, 64)
 			if err != nil {
 				exchangeRateDollarBRL = "Não foi possível formatar a cotação 😢"
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação do dólar: " + exchangeRateDollarBRL)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do dólar: "+exchangeRateDollarBRL)
 				bot.Send(msg)
 				continue
 			}
 			exchangeRateDolBRLFormatted := fmt.Sprintf("R$ %.2f", exchangeRateFloat)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do dólar: " + exchangeRateDolBRLFormatted)
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do dólar: "+exchangeRateDolBRLFormatted)
+			bot.Send(msg)
+
+		case "/euro":
+			// Pega cotação via função "getExchangeRateEuroBRL"
+			// Gets exchange Rate by function "getExchangeRateEuroBRL"
+			exchangeRateEuroBRL, err := getExchangeRateEuroBRL()
+			if err != nil {
+				exchangeRateEuroBRL = "Não foi possível buscar a cotação 😢"
+			}
+
+			// Converte a string para float64
+			// Convert string to float64
+			exchangeRateFloat, err := strconv.ParseFloat(exchangeRateEuroBRL, 64)
+			if err != nil {
+				exchangeRateEuroBRL = "Não foi possível formatar a cotação 😢"
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do euro: "+exchangeRateEuroBRL)
+				bot.Send(msg)
+				continue
+			}
+			exchangeRateEuroBRLFormatted := fmt.Sprintf("R$ %.2f", exchangeRateFloat)
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do euro: "+exchangeRateEuroBRLFormatted)
+			bot.Send(msg)
+
+		case "/libra":
+			// Pega cotação via função "getExchangeRatePoundBRL"
+			// Gets exchange Rate by function "getExchangeRatePoundBRL"
+			exchangeRatePoundBRL, err := getExchangeRatePoundBRL()
+			if err != nil {
+				exchangeRatePoundBRL = "Não foi possível buscar a cotação 😢"
+			}
+
+			// Converte a string para float64
+			// Convert string to float64
+			exchangeRateFloat, err := strconv.ParseFloat(exchangeRatePoundBRL, 64)
+			if err != nil {
+				exchangeRatePoundBRL = "Não foi possível formatar a cotação 😢"
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do euro: "+exchangeRatePoundBRL)
+				bot.Send(msg)
+				continue
+			}
+			exchangeRatePoundBRLFormatted := fmt.Sprintf("R$ %.2f", exchangeRateFloat)
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "💵 Cotação atual do euro: "+exchangeRatePoundBRLFormatted)
 			bot.Send(msg)
 
 		default:
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Olá, envie /dolar para ver a cotação atual do dólar")
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Olá, veja as cotações através dos comandos /dolar, /euro.")
 			bot.Send(msg)
 		}
 	}
 }
 
-// Função de API
-// API's function
+// Função de API que mostra a cotação atual do dólar
+// API's function that shows the current dollar rate
 func getExchangeRateDollarBRL() (string, error) {
 	// Public API
 	url := "https://economia.awesomeapi.com.br/json/last/USD-BRL"
@@ -104,6 +148,68 @@ func getExchangeRateDollarBRL() (string, error) {
 	// O JSON retorna: {"USDBRL": {"bid": "5.48", ...}}
 	// The JSON returns: {"USDBRL": {"bid": "5.48", ...}}
 	valor, ok := resultado["USDBRL"]["bid"].(string)
+	if !ok {
+		return "", fmt.Errorf("não consegui ler o valor")
+	}
+
+	return valor, nil
+}
+
+// Função de API que mostra a cotação atual do euro
+// API's function that shows the current euro rate
+func getExchangeRateEuroBRL() (string, error) {
+	// Public API
+	url := "https://economia.awesomeapi.com.br/json/last/EUR-BRL"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status: %d", resp.StatusCode)
+	}
+
+	var resultado map[string]map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&resultado); err != nil {
+		return "", err
+	}
+
+	// O JSON retorna: {"EURBRL": {"bid": "5.48", ...}}
+	// The JSON returns: {"EURBRL": {"bid": "5.48", ...}}
+	valor, ok := resultado["EURBRL"]["bid"].(string)
+	if !ok {
+		return "", fmt.Errorf("não consegui ler o valor")
+	}
+
+	return valor, nil
+}
+
+// Função de API que mostra a cotação atual da libra esterlina
+// API's function that shows the current pound sterling rate
+func getExchangeRatePoundBRL() (string, error) {
+	// Public API
+	url := "https://economia.awesomeapi.com.br/json/last/GBP-BRL"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status: %d", resp.StatusCode)
+	}
+
+	var resultado map[string]map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&resultado); err != nil {
+		return "", err
+	}
+
+	// O JSON retorna: {"GBPBRL": {"bid": "5.48", ...}}
+	// The JSON returns: {"GBPBRL": {"bid": "5.48", ...}}
+	valor, ok := resultado["GBPBRL"]["bid"].(string)
 	if !ok {
 		return "", fmt.Errorf("não consegui ler o valor")
 	}
