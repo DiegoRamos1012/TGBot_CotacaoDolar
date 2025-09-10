@@ -26,4 +26,4 @@ O bot pode ser encontrado pelo @usd_sabio_bot ou através do link "https://t.me/
 
 ## Screenshot
 
-![Screenshot] (docs/image/Print do bot.jpg)
+![Screenshot](docs/images/Print do bot.jpg)
