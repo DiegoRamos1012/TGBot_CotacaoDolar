@@ -23,3 +23,7 @@ Finalmente, rode o comando abaixo para iniciar o arquivo main.go e executar o c√
     go run main.go
 ```
 O bot pode ser encontrado pelo @usd_sabio_bot ou atrav√©s do link "https://t.me/usd_sabio_bot"
+
+## Screenshot
+
+![Screenshot](docs/images/Print do bot.jpg)
